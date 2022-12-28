@@ -1,12 +1,12 @@
 _RESPONSE = require 'response'
-require 'config'
+-- require 'config'
 -- local mongo = require 'mongo'
 
 local mysql = loadfile 'orm/mysql.lua'
 local router = require 'route'
 
 
-mysql().new(MYSQL_USER, MYSQL_PASS, MYSQL_HOST)
+-- mysql().new(MYSQL_USER, MYSQL_PASS, MYSQL_HOST)
 
 -- local client = mongo.Client(MONGO)
 -- Mongo = client:getDatabase(DATABASE)
