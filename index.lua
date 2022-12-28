@@ -1,4 +1,3 @@
-_RESPONSE = require 'response'
 -- require 'config'
 -- local mongo = require 'mongo'
 
