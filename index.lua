@@ -1,4 +1,4 @@
--- _RESPONSE = require 'response'
+_RESPONSE = require 'response'
 require 'config'
 -- local mongo = require 'mongo'
 

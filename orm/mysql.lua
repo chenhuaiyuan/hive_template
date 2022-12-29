@@ -1,6 +1,6 @@
--- local mysql_pool = require 'mysql_pool'
+local mysql = require 'mysql'
 
-local mysql = {}
+local _mysql = {}
 -- local p = require 'utils.print_table'
 
 local operator = { "=", ">", "<", ">=", "<=", "!=", "LIKE", "NOT LIKE", "REGEXP", "NOT REGEXP", "RLIKE",
@@ -29,29 +29,29 @@ function operator.contain(oper)
   return false
 end
 
-function mysql.new(user, pass, host)
-  _MYSQL = hive.mysql_pool.new(user or MYSQL_USER, pass or MYSQL_PASS, host or MYSQL_HOST)
+function _mysql.new(user, pass, host)
+  _MYSQL = mysql.new(user or MYSQL_USER, pass or MYSQL_PASS, host or MYSQL_HOST)
 end
 
 ---数据库
 ---@param db string|nil
 ---@param table string
 ---@return table
-function mysql.db(table, db)
-  -- print(mysql._table)
-  -- mysql._columns = nil;
-  -- mysql._limit = nil;
-  -- mysql._order_by = nil;
-  -- mysql._wheres = nil;
-  mysql._database = db or DATABASE
-  mysql._table = table
-  return mysql
+function _mysql.db(table, db)
+  -- print(_mysql._table)
+  -- _mysql._columns = nil;
+  -- _mysql._limit = nil;
+  -- _mysql._order_by = nil;
+  -- _mysql._wheres = nil;
+  _mysql._database = db or DATABASE
+  _mysql._table = table
+  return _mysql
 end
 
 ---数据库字段
 ---@param ... any
 ---@return table
-function mysql:columns(...)
+function _mysql:columns(...)
   self._columns = { ... }
   return self
 end
@@ -61,7 +61,7 @@ end
 ---@param operator any
 ---@param val any|nil
 ---@return table
-function mysql:where(key, operator, val)
+function _mysql:where(key, operator, val)
   if self._wheres == nil then self._wheres = {} end
   if self._wheres.fields == nil then self._wheres.fields = {} end
   if self._wheres.data == nil then self._wheres.data = {} end
@@ -115,7 +115,7 @@ end
 ---@param operator any
 ---@param val any|nil
 ---@return table
-function mysql:or_where(key, operator, val)
+function _mysql:or_where(key, operator, val)
   if self._wheres == nil then self._wheres = {} end
   if self._wheres.fields == nil then self._wheres.fields = {} end
   if self._wheres.data == nil then self._wheres.data = {} end
@@ -168,7 +168,7 @@ end
 ---@param key string
 ---@param values table
 ---@return table
-function mysql:where_in(key, values)
+function _mysql:where_in(key, values)
   if self._wheres == nil then self._wheres = {} end
   if self._wheres.fields == nil then self._wheres.fields = {} end
   if self._wheres.data == nil then self._wheres.data = {} end
@@ -215,7 +215,7 @@ end
 ---@param key string
 ---@param values table
 ---@return table
-function mysql:or_where_in(key, values)
+function _mysql:or_where_in(key, values)
   if self._wheres == nil then self._wheres = {} end
   if self._wheres.fields == nil then self._wheres.fields = {} end
   if self._wheres.data == nil then self._wheres.data = {} end
@@ -261,7 +261,7 @@ end
 ---@param key string
 ---@param values table
 ---@return table
-function mysql:where_not_in(key, values)
+function _mysql:where_not_in(key, values)
   if self._wheres == nil then self._wheres = {} end
   if self._wheres.fields == nil then self._wheres.fields = {} end
   if self._wheres.data == nil then self._wheres.data = {} end
@@ -308,7 +308,7 @@ end
 ---@param key string
 ---@param values table
 ---@return table
-function mysql:or_where_not_in(key, values)
+function _mysql:or_where_not_in(key, values)
   if self._wheres == nil then self._wheres = {} end
   if self._wheres.fields == nil then self._wheres.fields = {} end
   if self._wheres.data == nil then self._wheres.data = {} end
@@ -353,7 +353,7 @@ end
 ---key is null
 ---@param key string
 ---@return table
-function mysql:where_is_null(key)
+function _mysql:where_is_null(key)
   if self._wheres == nil then self._wheres = {} end
   if self._wheres.fields == nil then self._wheres.fields = {} end
   if #(self._wheres.fields) == 0 then
@@ -377,7 +377,7 @@ end
 ---key is not null
 ---@param key string
 ---@return table
-function mysql:where_is_not_null(key)
+function _mysql:where_is_not_null(key)
   if self._wheres == nil then self._wheres = {} end
   if self._wheres.fields == nil then self._wheres.fields = {} end
   if #(self._wheres.fields) == 0 then
@@ -401,7 +401,7 @@ end
 ---or key is null
 ---@param key string
 ---@return table
-function mysql:or_where_is_null(key)
+function _mysql:or_where_is_null(key)
   if self._wheres == nil then self._wheres = {} end
   if self._wheres.fields == nil then self._wheres.fields = {} end
   if #(self._wheres.fields) == 0 then
@@ -424,7 +424,7 @@ end
 ---or key is not null
 ---@param key string
 ---@return table
-function mysql:or_where_is_not_null(key)
+function _mysql:or_where_is_not_null(key)
   if self._wheres == nil then self._wheres = {} end
   if self._wheres.fields == nil then self._wheres.fields = {} end
   if #(self._wheres.fields) == 0 then
@@ -448,7 +448,7 @@ end
 ---@param offset number
 ---@param count number
 ---@return table
-function mysql:limit(offset, count)
+function _mysql:limit(offset, count)
   if self._limit == nil then self._limit = {} end
   if nil ~= offset then
     self._limit.offset = offset
@@ -463,7 +463,7 @@ end
 ---@param field string
 ---@param sort string|nil
 ---@return table
-function mysql:order_by(field, sort)
+function _mysql:order_by(field, sort)
   if self._order_by == nil then self._order_by = {} end
   if #(self._order_by) == 0 then
     if nil == sort then
@@ -489,7 +489,7 @@ end
 ---分组
 ---@param ... string
 ---@return table
-function mysql:group_by(...)
+function _mysql:group_by(...)
   self._group_by = { ... }
   return self
 end
@@ -499,7 +499,7 @@ end
 ---@param table1_field string
 ---@param table2_field string
 ---@return table
-function mysql:inner_join(table2, table1_field, table2_field)
+function _mysql:inner_join(table2, table1_field, table2_field)
   if self._inner_join == nil then self._inner_join = {} end
   table.insert(self._inner_join, {
     ['table2'] = table2,
@@ -514,7 +514,7 @@ end
 ---@param table1_field string
 ---@param table2_field string
 ---@return table
-function mysql:left_join(table2, table1_field, table2_field)
+function _mysql:left_join(table2, table1_field, table2_field)
   if self._left_join == nil then self._left_join = {} end
   table.insert(self._left_join, {
     ['table2'] = table2,
@@ -529,7 +529,7 @@ end
 ---@param table1_field string
 ---@param table2_field string
 ---@return table
-function mysql:right_join(table2, table1_field, table2_field)
+function _mysql:right_join(table2, table1_field, table2_field)
   if self._right_join == nil then self._right_join = {} end
   table.insert(self._right_join, {
     ['table2'] = table2,
@@ -539,7 +539,7 @@ function mysql:right_join(table2, table1_field, table2_field)
   return self
 end
 
-function mysql:find()
+function _mysql:find()
   local sql = 'SELECT '
   if self._columns ~= nil then
     for _, v in ipairs(self._columns) do
@@ -619,7 +619,7 @@ function mysql:find()
   return data
 end
 
-function mysql:find_all()
+function _mysql:find_all()
   local sql = 'SELECT '
   if self._columns ~= nil then
     for _, v in ipairs(self._columns) do
@@ -719,7 +719,7 @@ function mysql:find_all()
   return data
 end
 
-function mysql:insert(data)
+function _mysql:insert(data)
   local sql = 'INSERT INTO '
   local values = 'VALUES('
   sql = sql .. string.format('`%s`.`%s` (', self._database, self._table)
@@ -743,7 +743,7 @@ end
 ---批量插入
 ---@param fields table
 ---@param data table|nil
-function mysql:batch_insert(fields, data)
+function _mysql:batch_insert(fields, data)
   local sql = 'INSERT INTO '
   local values = 'VALUES('
   sql = sql .. string.format('`%s`.`%s` (', self._database, self._table)
@@ -801,7 +801,7 @@ local function length(t)
   return count
 end
 
-function mysql:save(data)
+function _mysql:save(data)
   if self._wheres ~= nil then
     local res = self:find()
     if length(res) == 0 then
@@ -814,7 +814,7 @@ function mysql:save(data)
   end
 end
 
-function mysql:update(data)
+function _mysql:update(data)
   local sql = string.format('UPDATE `%s`.`%s` SET ', self._database, self._table)
   local params = {}
   for key, val in pairs(data) do
@@ -842,7 +842,7 @@ function mysql:update(data)
   return _MYSQL:exec(sql, params)
 end
 
-function mysql:delete(datetime)
+function _mysql:delete(datetime)
   local sql = string.format('UPDATE `%s`.`%s` SET deleted_at = ? ', self._database, self._table)
   if datetime == nil then
     datetime = os.time()
@@ -858,7 +858,7 @@ function mysql:delete(datetime)
   return _MYSQL:exec(sql, params)
 end
 
-function mysql:count()
+function _mysql:count()
   local sql = ''
   if self._inner_join ~= nil or self._left_join ~= nil or self._right_join ~= nil then
     sql = string.format('SELECT COUNT(*) as count FROM `%s`.%s ', self._database, self._table)
@@ -920,4 +920,4 @@ function mysql:count()
   end
 end
 
-return mysql
+return _mysql
