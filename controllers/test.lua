@@ -19,4 +19,8 @@ function _M.get_user_info(request)
   return _RESPONSE.success(user)
 end
 
+function _M.test(request)
+  return "hello world"
+end
+
 return _M

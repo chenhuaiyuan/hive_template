@@ -8,5 +8,6 @@ router:match('GET', '/', test.index)
 -- match第四个参数是传中间件函数
 -- router:match('GET', '/test', test.index, auth_token)
 router:match('GET', '/get_user_info', test.get_user_info)
+router:match('GET', '/test', test.test)
 
 return router

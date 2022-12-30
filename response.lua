@@ -1,5 +1,15 @@
 local response = {}
 
+function response.json(data)
+  return {
+    ['status'] = 200,
+    ['headers'] = {
+      ['Content-type'] = 'application/json'
+    },
+    ['body'] = hive.table_to_json(data)
+  }
+end
+
 function response.success(data, code, message)
 
   if nil == message then
@@ -11,13 +21,7 @@ function response.success(data, code, message)
   end
 
   local resp = { code = code, message = message, data = data }
-  return {
-    ['status'] = 200,
-    ['headers'] = {
-      ['Content-type'] = 'application/json'
-    },
-    ['body'] = hive.table_to_json(resp)
-  }
+  return response.json(resp)
 end
 
 function response.fail(code, message, data)
@@ -25,13 +29,7 @@ function response.fail(code, message, data)
     data = ''
   end
   local resp = { code = code, message = message, data = data }
-  return {
-    ['status'] = 200,
-    ['headers'] = {
-      ['Content-type'] = 'application/json'
-    },
-    ['body'] = hive.table_to_json(resp)
-  }
+  return response.json(resp)
 end
 
 function response.html(body)

@@ -1,4 +1,5 @@
 _RESPONSE = require 'response'
+local exception = dofile 'exception/base_exception.lua'
 require 'config'
 -- local mongo = require 'mongo'
 
@@ -48,4 +49,4 @@ local function exec(method, path, req)
   end
 end
 
-return exec
+return exec, exception
