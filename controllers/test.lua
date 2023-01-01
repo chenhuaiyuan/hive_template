@@ -1,5 +1,6 @@
 local _M = {}
 local valid = require 'utils.validation'
+local tera = require 'utils.tera'
 
 function _M.index(request)
   return {
@@ -21,6 +22,10 @@ end
 
 function _M.test(request)
   return "hello world"
+end
+
+function _M.template(request)
+  return tera:view('test.html', { context = 'hello world' })
 end
 
 return _M
