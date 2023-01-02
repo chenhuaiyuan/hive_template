@@ -9,6 +9,9 @@ _M._tera = t.tera.new('views/**/*')
 ---@param context table
 ---@return string
 function _M:view(html_name, context)
+  if hive.env.dev then
+    self._tera:full_reload()
+  end
   return self._tera:render(html_name, context)
 end
 

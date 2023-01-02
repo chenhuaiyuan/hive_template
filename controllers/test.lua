@@ -24,6 +24,7 @@ function _M.test(request)
   return "hello world"
 end
 
+-- 使用tera必须要先安装tera库，tera库在hive源代码的ext中
 function _M.template(request)
   return tera:view('test.html', { context = 'hello world' })
 end
