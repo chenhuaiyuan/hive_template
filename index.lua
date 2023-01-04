@@ -49,4 +49,6 @@ local function exec(method, path, req)
   end
 end
 
-return exec, exception
+-- return exec, exception
+local s = hive.server():bind("127.0.0.1", 3000):exception(exception):serve(exec)
+return s:run()

@@ -4,11 +4,11 @@ local test = require 'controllers.test'
 local router = hive.router().new()
 
 
-router:match('GET', '/', test.index)
+router:match('get', '/', test.index)
 -- match第四个参数是传中间件函数
 -- router:match('GET', '/test', test.index, auth_token)
-router:match('GET', '/get_user_info', test.get_user_info)
-router:match('GET', '/test', test.test)
-router:match('GET', '/template', test.template)
+router:match('get', '/get_user_info', test.get_user_info)
+router:match('get', '/test', test.test)
+router:match('get', '/template', test.template)
 
 return router
