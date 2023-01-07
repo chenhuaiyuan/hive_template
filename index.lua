@@ -16,7 +16,7 @@ local router = require 'route'
 local function exec(method, path, req)
   local remote_addr = req:remote_addr()
   local headers = req:headers()
-  local bool, resp, middleware, params = router:execute(method, path,
+  local bool, func, middleware, params = router:execute(method, path,
     { _request = req, _remote_addr = remote_addr, _headers = headers })
   if bool then
     if middleware then
@@ -33,7 +33,7 @@ local function exec(method, path, req)
         }
       end
     end
-    return resp(params)
+    return func(params)
   else
     return {
       ['status'] = 404,

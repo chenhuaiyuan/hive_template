@@ -29,4 +29,22 @@ function _M.template(request)
   return tera:view('test.html', { context = 'hello world' })
 end
 
+-- websocket，需要开启特定功能才能使用
+function _M.ws(request)
+  local func = function(sender_map, sender, msg)
+    local m = msg:to_text()
+    local resp;
+    if m == '123' then
+      resp = 'hello'
+    else
+      resp = 'world'
+    end
+    local message = hive.ws_message.text(resp)
+
+    sender:send(message)
+    -- sender_map:send_all(message) -- 给所有用户发送
+  end
+  return request._request:upgrade(func)
+end
+
 return _M
