@@ -1,4 +1,4 @@
-local mysql = require 'mysql'
+-- local mysql = require 'mysql'
 
 local _mysql = {}
 -- local p = require 'utils.print_table'
@@ -29,8 +29,12 @@ function OPERATOR.contain(oper)
   return false
 end
 
-function _mysql.new(user, pass, host)
-  _MYSQL = mysql.new(user or MYSQL_USER, pass or MYSQL_PASS, host or MYSQL_HOST)
+function _mysql.new(user, pass, host, database)
+  if database ~= nil then
+    _MYSQL = hive.mysql.new(user or MYSQL_USER, pass or MYSQL_PASS, host or MYSQL_HOST, database)
+  else
+    _MYSQL = hive.mysql.new(user or MYSQL_USER, pass or MYSQL_PASS, host or MYSQL_HOST)
+  end
 end
 
 ---数据库
@@ -633,6 +637,20 @@ function _mysql:find()
   --   end
   -- end
   return data
+end
+
+---执行原始sql
+---@param sql string
+---@param params table | nil
+function _mysql.exec_first(sql, params)
+  return _MYSQL:exec_first(sql, params)
+end
+
+---执行原始sql
+---@param sql string
+---@param params table | nil
+function _mysql.exec(sql, params)
+  return _MYSQL:exec(sql, params)
 end
 
 function _mysql:find_all()
