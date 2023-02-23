@@ -13,6 +13,10 @@ MYSQL_HOST = '127.0.0.1:3306'
 MYSQL_USER = 'root'
 MYSQL_PASS = 'root123'
 
+-- 如果为true，当执行delete sql语句的时候会被update代替，会给DELETEDTIME字段插入数据
+-- 如果为false，当执行delete sql语句时，将直接删除数据
+SOFT_DELETE = true
+
 
 -- 变量值有：string timestamp table
 -- string: xxxx-xx-xx xx:xx:xx
