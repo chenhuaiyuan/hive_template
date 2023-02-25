@@ -589,9 +589,9 @@ end
 function orm:update(data)
   local sql
   if self._database ~= '' then
-    sql = sql .. 'UPDATE `' .. self._database .. '`.' .. self._table .. ' SET '
+    sql = 'UPDATE `' .. self._database .. '`.' .. self._table .. ' SET '
   else
-    sql = sql .. 'UPDATE ' .. self._table .. ' SET '
+    sql = 'UPDATE ' .. self._table .. ' SET '
   end
   local params = {}
   for key, val in pairs(data) do
