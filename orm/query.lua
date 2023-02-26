@@ -1,4 +1,3 @@
--- local mysql = require 'mysql'
 local insert = table.insert
 local type = type
 local gsub = string.gsub
@@ -6,14 +5,20 @@ local rep = string.rep
 local reverse = string.reverse
 local concat = table.concat
 local sub = string.sub
+-- local p = require 'utils.print_table'
 
 local orm = {
+  _type = 'mysql',
+  _engine = nil,
   _database = '',
   _table = '',
-  _type = 'mysql',
   _params = {}
 }
--- local p = require 'utils.print_table'
+
+local _type = {
+  ['mysql'] = 1,
+  ['sqlite'] = 2
+}
 
 ---数组合并
 ---@param t1 table
@@ -31,25 +36,25 @@ end
 
 function orm.new(user, pass, host, database)
   if database ~= nil then
-    orm._engine = hive.mysql.new(user or MYSQL_USER, pass or MYSQL_PASS, host or MYSQL_HOST, database)
+    MYSQL = hive.mysql.new(user or MYSQL_USER, pass or MYSQL_PASS, host or MYSQL_HOST, database)
   else
-    orm._engine = hive.mysql.new(user or MYSQL_USER, pass or MYSQL_PASS, host or MYSQL_HOST)
+    MYSQL = hive.mysql.new(user or MYSQL_USER, pass or MYSQL_PASS, host or MYSQL_HOST)
   end
-  orm._type = 'mysql'
+  -- orm._type = 'mysql'
   return orm
 end
 
 function orm.open(path)
   local sqlite = require 'sqlite'
-	orm._engine = sqlite.connect.open(path)
-  orm._type = 'sqlite'
+	SQLITE = sqlite.connect.open(path)
+  -- orm._type = 'sqlite'
   return orm
 end
 
 function orm.open_in_memory()
   local sqlite = require 'sqlite'
-  orm._engine = sqlite.connect.open_in_memory()
-  orm._type = 'sqlite'
+  SQLITE = sqlite.connect.open_in_memory()
+  -- orm._type = 'sqlite'
   return orm
 end
 
@@ -58,16 +63,26 @@ end
 ---@param flags table sqlite.flags
 function orm.open_with_flags(path, flags)
   local sqlite = require 'sqlite'
-  orm._engine = sqlite.connect.open_with_flags(path, flags)
-  orm._type = 'sqlite'
+  SQLITE = sqlite.connect.open_with_flags(path, flags)
+  -- orm._type = 'sqlite'
   return orm
 end
 
 ---@param flags table
 function orm.open_in_memory_with_flags(flags)
   local sqlite = require 'sqlite'
-  orm._engine = sqlite.connect.open_in_memory_with_flags(flags)
-  orm._type = 'sqlite'
+  SQLITE = sqlite.connect.open_in_memory_with_flags(flags)
+  -- orm._type = 'sqlite'
+  return orm
+end
+
+function orm.mysql()
+    orm._type = _type.mysql
+  return orm
+end
+
+function orm.sqlite()
+	orm._type = _type.sqlite
   return orm
 end
 
@@ -284,13 +299,13 @@ end
 ---@param count number | nil
 ---@return table
 function orm:limit(offset, count)
-  if self._type == 'mysql' then
+  if self._type == _type.mysql then
     if nil ~= count then
       self._limit = ' LIMIT ' .. offset .. ', ' .. count .. ' '
     else
       self.limit = ' LIMIT ' .. offset .. ' '
     end
-  elseif self._type == 'sqlite' then
+  elseif self._type == _type.sqlite then
     if nil ~= count then
       self._limit = ' LIMIT ' .. count .. ' OFFSET ' .. offset .. ' '
     else
@@ -338,9 +353,9 @@ end
 ---@param table2_field string
 ---@return table
 function orm:left_join(table2, table1_field, table2_field)
-  if self._type == 'mysql' then
+  if self._type == _type.mysql then
   self._join = ' LEFT JOIN ' .. table2 .. ' ON ' .. table1_field .. ' = ' .. table2_field .. ' '
-  elseif self._type == 'sqlite' then
+  elseif self._type == _type.sqlite then
     self._join = ' LEFT OUTER JOIN ' .. table2 .. ' ON ' .. table1_field .. ' = ' .. table2_field .. ' '
   end
   return self
@@ -365,15 +380,15 @@ function orm:cross_join(table2)
 end
 
 function orm:find(...)
-  local columns
-  if self._columns ~= nil then
-    columns = array_merge(self._columns, {...})
-  else
-    columns = {...}
-  end
+  local columns = {...}
+  -- if self._columns ~= nil then
+  --   columns = array_merge(self._columns, {...})
+  -- else
+  --   columns = {...}
+  -- end
   local sql
-  if columns ~= nil and next(columns) ~= nil then
-    sql = 'SELECT ' .. concat(columns, ',')
+  if self._columns ~= nil and next(self._columns) ~= nil then
+    sql = 'SELECT ' .. concat(self._columns, ',')
   else
     sql = 'SELECT * '
   end
@@ -404,10 +419,10 @@ function orm:find(...)
     sql = sql .. self._limit
   end
   local data
-  if self._type == 'mysql' then
-    data = self._engine:exec_first(sql, self._params)
-  elseif self._type == 'sqlite' then
-    data = self._engine:query_first(sql, self._params, columns)
+  if self._type == _type.mysql then
+    data = MYSQL:exec_first(sql, self._params)
+  elseif self._type == _type.sqlite then
+    data = SQLIITE:query_first(sql, self._params, columns)
   end
   return data
 end
@@ -416,7 +431,7 @@ end
 ---@param sql string
 ---@param params table | nil
 function orm:exec_first(sql, params)
-  return self._engine:exec_first(sql, params)
+  return MYSQL:exec_first(sql, params)
 end
 
 ---执行原始sql
@@ -424,9 +439,9 @@ end
 ---@param params table | nil
 function orm:exec(sql, params)
   if self._type == 'mysql' then
-    return self._engine:exec(sql, params)
+    return MYSQL:exec(sql, params)
   elseif self._type == 'sqlite' then
-    return self._engine:execute(sql, params)
+    return SQLITE:execute(sql, params)
   end
 end
 
@@ -435,22 +450,22 @@ end
 ---@param params table | nil
 function orm:exec_batch(sql, params)
 	if self._type == 'mysql'then
-    self._engine:exec_batch(sql, params)
+    MYSQL:exec_batch(sql, params)
   elseif self._type == 'sqlite' then
-    self._engine:execute_batch(sql)
+    SQLITE:execute_batch(sql)
   end
 end
 
 function orm:find_all(...)
-  local columns
-  if self._columns ~= nil then
-    columns = array_merge(self._columns, {...})
-  else
-    columns = {...}
-  end
+  local columns = {...}
+  -- if self._columns ~= nil then
+  --   columns = array_merge(self._columns, {...})
+  -- else
+  --   columns = {...}
+  -- end
   local sql
-  if columns ~= nil and next(columns) ~= nil then
-    sql = 'SELECT ' .. concat(columns, ',')
+  if self._columns ~= nil and next(self._columns) ~= nil then
+    sql = 'SELECT ' .. concat(self._columns, ',')
   else
     sql = 'SELECT * '
   end
@@ -481,10 +496,11 @@ function orm:find_all(...)
     sql = sql .. self._limit
   end
   local data
-  if self._type == 'mysql' then
-    data = self._engine:exec(sql, self._params)
-  elseif self._type == 'sqlite' then
-    data = self._engine:query(sql, self._params, columns)
+  -- print(sql)
+  if self._type == _type.mysql then
+    data = MYSQL:exec(sql, self._params)
+  elseif self._type == _type.sqlite then
+    data = SQLITE:query(sql, self._params, columns)
   end
   return data
 end
@@ -509,10 +525,10 @@ function orm:insert(data)
   end
   sql  = sub(sql, 1, -2) .. ')'
   values = sub(values, 1, -2) .. ')'
-  if self._type == 'mysql' then
-    return self._engine:exec(sql .. values, params)
-  elseif self._type == 'sqlite' then
-    return self._engine:insert(sql .. values, params)
+  if self._type == _type.mysql then
+    return MYSQL:exec(sql .. values, params)
+  elseif self._type == _type.sqlite then
+    return SQLITE:insert(sql .. values, params)
   end
 end
 
@@ -570,7 +586,7 @@ function orm:batch_insert(fields, data)
   values = sub(values, 1, -2)
   sql = sql .. ')'
   values = values .. ')'
-  self._engine:exec_batch(sql .. values, params)
+  MYSQL:exec_batch(sql .. values, params)
 end
 
 function orm:save(data)
@@ -613,10 +629,10 @@ function orm:update(data)
     sql = sql .. self._wheres
   end
   params = array_merge(params, self._params)
-  if self._type == 'mysql' then
-    return self._engine:exec(sql, params)
-  elseif self._type == 'sqlite' then
-    return self._engine:execute(sql, params)
+  if self._type == _type.mysql then
+    return MYSQL:exec(sql, params)
+  elseif self._type == _type.sqlite then
+    return SQLITE:execute(sql, params)
   end
 end
 
@@ -643,10 +659,10 @@ function orm:delete(datetime)
     sql = sql .. self._wheres
   end
   params = array_merge(params, self._params)
-  if self._type == 'mysql' then
-    return self._engine:exec(sql, params)
-  elseif self._type == 'sqlite' then
-    return self._engine:execute(sql, params)
+  if self._type == _type.mysql then
+    return MYSQL:exec(sql, params)
+  elseif self._type == _type.sqlite then
+    return SQLITE:execute(sql, params)
   end
 end
 
@@ -673,10 +689,10 @@ function orm:count()
     sql = sql .. self._limit
   end
   local data
-  if self._type == 'mysql' then
-    data = self._engine:exec_first(sql, self._params)
-  elseif self._type == 'sqlite' then
-    data = self._engine:query_first(sql, self._params, {'count'})
+  if self._type == _type.mysql then
+    data = MYSQL:exec_first(sql, self._params)
+  elseif self._type == _type.sqlite then
+    data = SQLITE:query_first(sql, self._params, {'count'})
   end
   return data.count or 0
 end
