@@ -46,7 +46,7 @@ end
 
 function orm.open(path)
   local sqlite = require 'sqlite'
-	SQLITE = sqlite.connect.open(path)
+  SQLITE = sqlite.connect.open(path)
   -- orm._type = 'sqlite'
   return orm
 end
@@ -77,12 +77,12 @@ function orm.open_in_memory_with_flags(flags)
 end
 
 function orm.mysql()
-    orm._type = _type.mysql
+  orm._type = _type.mysql
   return orm
 end
 
 function orm.sqlite()
-	orm._type = _type.sqlite
+  orm._type = _type.sqlite
   return orm
 end
 
@@ -172,10 +172,10 @@ function orm:where_in(key, values)
     self._wheres = self._wheres .. ' AND ' .. key .. ' IN ('
   end
   self._params = array_merge(self._params, values)
-  local len  = #values
-  local expr = rep(',?', len)
-  expr = gsub(expr, ',', ')', 1)
-  expr = reverse(expr)
+  local len    = #values
+  local expr   = rep(',?', len)
+  expr         = gsub(expr, ',', ')', 1)
+  expr         = reverse(expr)
   self._wheres = self._wheres .. expr
   return self
 end
@@ -194,10 +194,10 @@ function orm:or_where_in(key, values)
     self._wheres = self._wheres .. ' OR ' .. key .. ' IN ('
   end
   self._params = array_merge(self._params, values)
-  local len  = #values
-  local expr = rep(',?', len)
-  expr = gsub(expr, ',', ')', 1)
-  expr = reverse(expr)
+  local len    = #values
+  local expr   = rep(',?', len)
+  expr         = gsub(expr, ',', ')', 1)
+  expr         = reverse(expr)
   self._wheres = self._wheres .. expr
   return self
 end
@@ -216,10 +216,10 @@ function orm:where_not_in(key, values)
     self._wheres = self._wheres .. ' AND ' .. key .. ' NOT IN ('
   end
   self._params = array_merge(self._params, values)
-  local len  = #values
-  local expr = rep(',?', len)
-  expr = gsub(expr, ',', ')', 1)
-  expr = reverse(expr)
+  local len    = #values
+  local expr   = rep(',?', len)
+  expr         = gsub(expr, ',', ')', 1)
+  expr         = reverse(expr)
   self._wheres = self._wheres .. expr
   return self
 end
@@ -238,10 +238,10 @@ function orm:or_where_not_in(key, values)
     self._wheres = self._wheres .. ' OR ' .. key .. ' NOT IN ('
   end
   self._params = array_merge(self._params, values)
-  local len  = #values
-  local expr = rep(',?', len)
-  expr = gsub(expr, ',', ')', 1)
-  expr = reverse(expr)
+  local len    = #values
+  local expr   = rep(',?', len)
+  expr         = gsub(expr, ',', ')', 1)
+  expr         = reverse(expr)
   self._wheres = self._wheres .. expr
   return self
 end
@@ -311,7 +311,6 @@ function orm:limit(offset, count)
     else
       self.limit = ' LIMIT ' .. offset .. ' '
     end
-
   end
   return self
 end
@@ -333,7 +332,7 @@ end
 ---@param ... string
 ---@return table
 function orm:group_by(...)
-  self._group_by = ' GROUP BY ' .. concat({...}, ',')
+  self._group_by = ' GROUP BY ' .. concat({ ... }, ',')
   return self
 end
 
@@ -343,7 +342,7 @@ end
 ---@param table2_field string
 ---@return table
 function orm:inner_join(table2, table1_field, table2_field)
-    self._join = ' INNER JOIN ' .. table2 .. ' ON ' .. table1_field .. ' = ' .. table2_field .. ' '
+  self._join = ' INNER JOIN ' .. table2 .. ' ON ' .. table1_field .. ' = ' .. table2_field .. ' '
   return self
 end
 
@@ -354,7 +353,7 @@ end
 ---@return table
 function orm:left_join(table2, table1_field, table2_field)
   if self._type == _type.mysql then
-  self._join = ' LEFT JOIN ' .. table2 .. ' ON ' .. table1_field .. ' = ' .. table2_field .. ' '
+    self._join = ' LEFT JOIN ' .. table2 .. ' ON ' .. table1_field .. ' = ' .. table2_field .. ' '
   elseif self._type == _type.sqlite then
     self._join = ' LEFT OUTER JOIN ' .. table2 .. ' ON ' .. table1_field .. ' = ' .. table2_field .. ' '
   end
@@ -380,7 +379,7 @@ function orm:cross_join(table2)
 end
 
 function orm:find(...)
-  local columns = {...}
+  local columns = { ... }
   -- if self._columns ~= nil then
   --   columns = array_merge(self._columns, {...})
   -- else
@@ -422,7 +421,7 @@ function orm:find(...)
   if self._type == _type.mysql then
     data = MYSQL:exec_first(sql, self._params)
   elseif self._type == _type.sqlite then
-    data = SQLIITE:query_first(sql, self._params, columns)
+    data = SQLITE:query_first(sql, self._params, columns)
   end
   return data
 end
@@ -449,7 +448,7 @@ end
 ---@param sql string
 ---@param params table | nil
 function orm:exec_batch(sql, params)
-	if self._type == 'mysql'then
+  if self._type == 'mysql' then
     MYSQL:exec_batch(sql, params)
   elseif self._type == 'sqlite' then
     SQLITE:execute_batch(sql)
@@ -457,7 +456,7 @@ function orm:exec_batch(sql, params)
 end
 
 function orm:find_all(...)
-  local columns = {...}
+  local columns = { ... }
   -- if self._columns ~= nil then
   --   columns = array_merge(self._columns, {...})
   -- else
@@ -523,7 +522,7 @@ function orm:insert(data)
       insert(params, val)
     end
   end
-  sql  = sub(sql, 1, -2) .. ')'
+  sql    = sub(sql, 1, -2) .. ')'
   values = sub(values, 1, -2) .. ')'
   if self._type == _type.mysql then
     return MYSQL:exec(sql .. values, params)
@@ -692,7 +691,7 @@ function orm:count()
   if self._type == _type.mysql then
     data = MYSQL:exec_first(sql, self._params)
   elseif self._type == _type.sqlite then
-    data = SQLITE:query_first(sql, self._params, {'count'})
+    data = SQLITE:query_first(sql, self._params, { 'count' })
   end
   return data.count or 0
 end
