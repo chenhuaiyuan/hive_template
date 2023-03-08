@@ -6,12 +6,11 @@ function response.json(data)
     ['headers'] = {
       ['Content-type'] = 'application/json'
     },
-    ['body'] = hive.table_to_json(data)
+    ['body'] = hive.to_json(data)
   }
 end
 
 function response.success(data, code, message)
-
   if nil == message then
     message = 'Ok'
   end
