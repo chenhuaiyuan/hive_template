@@ -28,7 +28,7 @@ local function exec(method, path, req)
           ['headers'] = {
             ['Content-type'] = 'application/json'
           },
-          ['body'] = hive.table_to_json(res)
+          ['body'] = hive.to_json(res)
         }
       end
     end
@@ -39,7 +39,7 @@ local function exec(method, path, req)
       ['headers'] = {
         ['Content-type'] = 'application/json'
       },
-      ['body'] = hive.table_to_json({
+      ['body'] = hive.to_json({
         ['code'] = 404,
         ['data'] = '',
         ['message'] = 'not found'
