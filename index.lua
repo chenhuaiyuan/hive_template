@@ -12,9 +12,10 @@ local router = require 'route'
 
 
 local function exec(method, path, req)
-  local remote_addr = req:remote_addr()
-  local headers = req:headers()
-  local params = { _request = req, _remote_addr = remote_addr, _headers = headers }
+  -- local remote_addr = req:remote_addr() -- 获取客户端地址
+  -- local headers = req:headers() -- 获取头部信息
+  -- local params = { _request = req, _remote_addr = remote_addr, _headers = headers }
+  local params = { _request = req }
   local handler = router:execute(method, path)
   if handler.is_exist then
     params.router_params = handler.router_params
@@ -22,29 +23,37 @@ local function exec(method, path, req)
       local is_pass = false;
       is_pass, params._user_info = handler.middleware(req)
       if not is_pass then
-        local res = { code = 5001, message = 'Failed to verify token', data = '' }
-        return {
-          ['status'] = 200,
-          ['headers'] = {
-            ['Content-type'] = 'application/json'
-          },
-          ['body'] = hive.to_json(res)
-        }
+        -- local res = { code = 5001, message = 'Failed to verify token', data = '' }
+        -- return {
+        --   ['status'] = 200,
+        --   ['headers'] = {
+        --     ['Content-type'] = 'application/json'
+        --   },
+        --   ['body'] = hive.to_json(res)
+        -- }
+        return _RESPONSE.fail(5001, 'Failed to verify token')
       end
     end
     return handler.func(params)
   else
-    return {
-      ['status'] = 404,
-      ['headers'] = {
-        ['Content-type'] = 'application/json'
-      },
-      ['body'] = hive.to_json({
-        ['code'] = 404,
-        ['data'] = '',
-        ['message'] = 'not found'
-      })
-    }
+    return hive.response.new():status(404):headers({
+      ['Content-type'] = 'application/json'
+    }):body({
+      ['code'] = 404,
+      ['data'] = '',
+      ['message'] = 'Not Found'
+    })
+    -- return {
+    --   ['status'] = 404,
+    --   ['headers'] = {
+    --     ['Content-type'] = 'application/json'
+    --   },
+    --   ['body'] = hive.to_json({
+    --     ['code'] = 404,
+    --     ['data'] = '',
+    --     ['message'] = 'not found'
+    --   })
+    -- }
   end
 end
 
